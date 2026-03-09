@@ -1,87 +1,55 @@
 const display = document.getElementById("display");
 const buttons = document.querySelectorAll(".btn");
+const toggle = document.getElementById("themeToggle");
+const calculator = document.getElementById("calculator");
 
-let currentInput = "";
-let operator = null;
-let firstValue = null;
-let shouldResetDisplay = false;
+let expression = "";
+
 
 buttons.forEach(button => {
-    button.addEventListener("click", () => {
-        const value = button.getAttribute("data-value");
 
-        if (value === "C") {
-            clearCalculator();
-        } else if (value === "=") {
-            calculate();
-        } else if (["+", "-", "*", "/"].includes(value)) {
-            handleOperator(value);
-        } else {
-            handleNumber(value);
-        }
-    });
+button.addEventListener("click", () => {
+
+const value = button.dataset.value;
+
+if(value === "C"){
+expression = "";
+display.textContent = "0";
+return;
+}
+
+if(value === "="){
+try{
+expression = eval(expression).toString();
+display.textContent = expression;
+}catch{
+display.textContent = "Error";
+expression="";
+}
+return;
+}
+
+expression += value;
+display.textContent = expression;
+
 });
 
-function handleNumber(value) {
-    if (shouldResetDisplay) {
-        currentInput = "";
-        shouldResetDisplay = false;
-    }
+});
 
-    // Prevent multiple decimals
-    if (value === "." && currentInput.includes(".")) return;
 
-    currentInput += value;
-    updateDisplay(currentInput);
+
+toggle.addEventListener("click", ()=>{
+
+if(calculator.classList.contains("dark")){
+
+calculator.classList.remove("dark");
+calculator.classList.add("light");
+
+}else{
+
+calculator.classList.remove("light");
+calculator.classList.add("dark");
+
 }
 
-function handleOperator(op) {
-    if (currentInput === "") return;
-
-    if (firstValue === null) {
-        firstValue = parseFloat(currentInput);
-    } else if (!shouldResetDisplay) {
-        calculate();
-    }
-
-    operator = op;
-    shouldResetDisplay = true;
-}
-
-function calculate() {
-    if (operator === null || shouldResetDisplay) return;
-
-    const secondValue = parseFloat(currentInput);
-    let result;
-
-    switch (operator) {
-        case "+":
-            result = firstValue + secondValue;
-            break;
-        case "-":
-            result = firstValue - secondValue;
-            break;
-        case "*":
-            result = firstValue * secondValue;
-            break;
-        case "/":
-            result = secondValue === 0 ? "Error" : firstValue / secondValue;
-            break;
-    }
-
-    updateDisplay(result);
-    currentInput = result.toString();
-    firstValue = result;
-    operator = null;
-}
-
-function clearCalculator() {
-    currentInput = "";
-    operator = null;
-    firstValue = null;
-    updateDisplay("0");
-}
-
-function updateDisplay(value) {
-    display.textContent = value;
-}
+});
